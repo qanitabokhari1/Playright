@@ -45,7 +45,7 @@ When('I navigate to Shoes section and add highest value product with quantity {i
 Then('I should see the cart contains both T-shirt and shoe items', async function() {
   const cartPage = (this as any).cartPage;
   console.log('\n=== Step 8: Verifying cart contains both items ===');
-  await cartPage.verifyTshirtsInCart(2); // Expecting 2 items: 1 T-shirt + 1 shoe (qty 2)
+  await cartPage.verifyTshirtsInCart(2); 
   
   console.log('\n🎉 SCENARIO 2 COMPLETED SUCCESSFULLY! 🎉');
   console.log('All steps completed: Login → Apparel → T-shirts → Sort Low to High → Select Lowest → Shoes → Add Highest → Verify Cart');

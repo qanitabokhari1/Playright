@@ -6,72 +6,21 @@ export class CartPage {
   async goToCart() {
     console.log('Navigating to cart...');
 
-    // Try multiple selectors for cart navigation
-    const cartSelectors = [
-      '//div[@id="cart_checkout1"]',
-      '//a[contains(@href,"cart")]',
-      '//a[contains(text(),"Cart")]',
-      '//div[contains(@class,"cart")]',
-      '//i[contains(@class,"cart")]/..',
-      '//*[@id="cart"]',
-      '//div[@class="checkout"]',
-      '//a[contains(@href,"checkout")]'
-    ];
-
-    let cartElement = null;
-    let usedSelector = '';
-
-    for (const selector of cartSelectors) {
-      try {
-        const element = this.page.locator(selector).first();
-        if (await element.isVisible()) {
-          cartElement = element;
-          usedSelector = selector;
-          console.log(`✓ Found cart element using selector: ${selector}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Cart selector ${selector} not found, trying next...`);
-        continue;
-      }
-    }
-
-    if (cartElement) {
+    const cartElement = this.page.locator('//div[@id="cart_checkout1"]');
+    
+    if (await cartElement.isVisible()) {
       await cartElement.click();
-      console.log(`✓ Clicked on cart element using selector: ${usedSelector}`);
+      console.log('✓ Clicked on cart element');
     } else {
-      // Fallback: try direct navigation to cart URL
-      console.log('⚠️ Cart element not found, trying direct URL navigation...');
-      const baseUrl = process.env.BASE_URL || 'https://automationteststore.com/';
-      const cartUrl = `${baseUrl}index.php?rt=checkout/cart`;
-      await this.page.goto(cartUrl);
-      console.log(`✓ Navigated directly to cart URL: ${cartUrl}`);
+      throw new Error('Cart element not found. Please check the page structure.');
     }
 
-    // Wait for cart page to load
     await this.page.waitForLoadState('networkidle', { timeout: 15000 });
     
-    // Try to verify we're on the cart page
-    const cartPageSelectors = [
-      '//h1[contains(text(),"Shopping Cart")]',
-      '//h1[contains(text(),"Cart")]',
-      '//*[contains(text(),"Shopping Cart")]',
-      '//*[contains(text(),"Your Cart")]'
-    ];
-
-    let cartPageFound = false;
-    for (const selector of cartPageSelectors) {
-      try {
-        await this.page.locator(selector).waitFor({ state: 'visible', timeout: 5000 });
-        console.log(`✓ Cart page loaded successfully - found: ${selector}`);
-        cartPageFound = true;
-        break;
-      } catch (error) {
-        continue;
-      }
-    }
-
-    if (!cartPageFound) {
+    try {
+      await this.page.locator('//h1[contains(text(),"Shopping Cart")]').waitFor({ state: 'visible', timeout: 5000 });
+      console.log('✓ Cart page loaded successfully');
+    } catch (error) {
       console.log('✓ Cart page navigation completed (no specific cart header found)');
     }
   }
@@ -104,16 +53,14 @@ export class CartPage {
     }
   }
 
-  async verifyTshirtsInCart(expectedCount: number) {
+    async verifyTshirtsInCart(expectedCount: number) {
     console.log(`Verifying ${expectedCount} items in cart...`);
 
-    // Always navigate to cart to ensure we're on the right page
     await this.goToCart();
 
     await this.page.waitForLoadState('networkidle', { timeout: 15000 });
     await this.page.waitForTimeout(2000);
 
-    // Try multiple selectors for cart table
     const tableSelectors = [
       '//table[@class="table table-striped table-bordered"]',
       '//table[contains(@class,"table")]',
@@ -140,13 +87,12 @@ export class CartPage {
       throw new Error('Cart table not found with any selector');
     }
 
-    // Try multiple selectors for cart rows
     const rowSelectors = [
       '//tr[contains(@class,"product")]',
       '//tr[contains(@class,"item")]',
       '//tbody/tr',
-      '//tr[position()>1]', // Skip header row
-      '//tr[td]' // Rows that contain td elements
+      '//tr[position()>1]', 
+      '//tr[td]' 
     ];
 
     let actualItemCount = 0;
@@ -170,7 +116,6 @@ export class CartPage {
     if (actualItemCount >= expectedCount) {
       console.log(`✓ Cart contains at least ${expectedCount} items as expected`);
     } else {
-      // If we still don't find items, let's check if cart is empty
       const emptyCartMessage = await this.page.locator('//div[contains(text(),"empty") or contains(text(),"Empty")]').isVisible();
       if (emptyCartMessage) {
         console.log('⚠️ Cart appears to be empty - items may not have been added successfully');
@@ -188,4 +133,5 @@ export class CartPage {
 
     console.log('✓ T-shirts cart verification completed successfully');
   }
+
 }

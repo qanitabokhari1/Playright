@@ -86,6 +86,21 @@ async function navigateToMenSection(page: any): Promise<void> {
 
   await page.waitForLoadState("networkidle", { timeout: TIMEOUTS.PAGE_LOAD });
   await page.waitForTimeout(TIMEOUTS.WAIT_AFTER_ACTION);
+  
+  // Smooth scroll to center after men section loads
+  await page.evaluate((selector: string) => {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center',
+        inline: 'nearest'
+      });
+    }
+  }, 'body');
+  
+  await page.waitForTimeout(1200); // Wait for scroll animation
+  
   console.log(MESSAGES.MEN_SECTION_LOADED);
 }
 

@@ -20,37 +20,6 @@ export class HomePage {
   }
 
 
-  private async smoothScrollToPosition(x: number, y: number, duration: number = 1000) {
-    await this.page.evaluate(({ x, y, duration }) => {
-      window.scrollTo({
-        top: y,
-        left: x,
-        behavior: 'smooth'
-      });
-    }, { x, y, duration });
-    
-    await this.page.waitForTimeout(duration + 200);
-  }
-
-  async smoothScrollToTop(duration: number = 800) {
-    console.log('Smooth scrolling to top of page...');
-    await this.smoothScrollToPosition(0, 0, duration);
-    console.log('✓ Smooth scroll to top completed');
-  }
-
-  async smoothScrollToBottom(duration: number = 1000) {
-    console.log('Smooth scrolling to bottom of page...');
-    await this.page.evaluate(({ duration }) => {
-      window.scrollTo({
-        top: document.body.scrollHeight,
-        behavior: 'smooth'
-      });
-    }, { duration });
-    
-    await this.page.waitForTimeout(duration + 200);
-    console.log('✓ Smooth scroll to bottom completed');
-  }
-
   async clickHomeNav() {
     console.log('Navigating to Home page...');
     const homeLink = this.page.locator('//*[@id="categorymenu"]/nav/ul/li[1]');
@@ -141,41 +110,15 @@ export class HomePage {
     await this.page.waitForLoadState('networkidle', { timeout: 15000 });
     await this.page.waitForTimeout(1000);
     
-    // Try multiple selectors for T-shirts section
-    const selectors = [
-      'xpath=/html/body/div/div[1]/div[1]/section/nav/ul/li[2]/div/ul[1]/li[2]',
-      '//a[contains(text(),"T-shirts")]',
-      '//a[contains(text(),"T-SHIRTS")]',
-      '//a[contains(text(),"Tshirts")]',
-      '//a[contains(@href,"T-shirts") or contains(@href,"tshirts")]',
-      '//*[@id="categorymenu"]//a[contains(text(),"T-")]'
-    ];
-
-    let tshirtsLink = null;
-    let usedSelector = '';
-
-    for (const selector of selectors) {
-      try {
-        const link = this.page.locator(selector);
-        if (await link.isVisible()) {
-          tshirtsLink = link;
-          usedSelector = selector;
-          console.log(`✓ Found T-shirts link using selector: ${selector}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Selector ${selector} not found, trying next...`);
-        continue;
-      }
-    }
+    const tshirtsLink = this.page.locator('//*[@id="categorymenu"]/nav/ul/li[2]/div/ul[1]/li[2]');
     
-    if (tshirtsLink) {
+    if (await tshirtsLink.isVisible()) {
       await tshirtsLink.scrollIntoViewIfNeeded();
       await this.page.waitForTimeout(300);
       await tshirtsLink.click();
-      console.log(`✓ Clicked on T-shirts section using selector: ${usedSelector}`);
+      console.log('✓ Clicked on T-shirts section');
     } else {
-      throw new Error('T-shirts section not found with any selector. Please check the page structure.');
+      throw new Error('T-shirts section not found. Please check the page structure.');
     }
     
     await this.page.waitForLoadState('domcontentloaded', { timeout: 20000 });
@@ -184,17 +127,5 @@ export class HomePage {
     console.log('✓ T-shirts page loaded successfully and stable');
   }
 
-  async smoothScrollToSection(selector: string, sectionName: string, duration: number = 1000) {
-    console.log(`Smooth scrolling to ${sectionName}...`);
-    await this.smoothScrollToElement(selector, duration);
-    console.log(`✓ Smooth scroll to ${sectionName} completed`);
-  }
-
-
-  async smoothScrollToNavigation(duration: number = 800) {
-    console.log('Smooth scrolling to navigation menu...');
-    await this.smoothScrollToElement('#categorymenu', duration);
-    console.log('✓ Smooth scroll to navigation completed');
-  }
 }
 

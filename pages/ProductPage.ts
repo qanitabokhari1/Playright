@@ -37,55 +37,17 @@ export class ProductPage {
 
     console.log('Finding Add to Cart button for the first/newest product...');
     
-    // Try multiple selectors for the Add to Cart button
-    const selectors = [
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[1]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[3]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[1]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[3]/div[2]/div[3]/a',
-      '//a[contains(text(),"Add to Cart")]',
-      '//a[contains(@class,"cart")]',
-      '//button[contains(text(),"Add to Cart")]',
-      '//input[@value="Add to Cart"]'
-    ];
-
-    let addToCartButton = null;
-    let usedSelector = '';
-
-    for (const selector of selectors) {
-      try {
-        const button = this.page.locator(selector);
-        if (await button.isVisible()) {
-          addToCartButton = button;
-          usedSelector = selector;
-          console.log(`✓ Found Add to Cart button using selector: ${selector}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Selector ${selector} not found, trying next...`);
-        continue;
-      }
-    }
+    const addToCartButton = this.page.locator('//a[contains(@class,"cart") or contains(text(),"Cart")]').first();
     
-    if (addToCartButton) {
+    if (await addToCartButton.isVisible()) {
       console.log('✓ Found Add to Cart button');
       
       await addToCartButton.scrollIntoViewIfNeeded();
       await this.page.waitForTimeout(1000);
       await addToCartButton.click();
-      console.log(`✓ Clicked "Add to Cart" button using selector: ${usedSelector}`);
+      console.log(`✓ Clicked "Add to Cart"`);
     } else {
-      // Try to find any button or link that might be the Add to Cart button
-      const fallbackButton = this.page.locator('//a[contains(text(),"Cart") or contains(text(),"Add") or contains(@class,"cart") or contains(@class,"add")]').first();
-      
-      if (await fallbackButton.isVisible()) {
-        await fallbackButton.scrollIntoViewIfNeeded();
-        await this.page.waitForTimeout(1000);
-        await fallbackButton.click();
-        console.log('✓ Clicked "Add to Cart" button using fallback selector');
-      } else {
-        throw new Error('Add to Cart button not found with any selector. Please check the page structure.');
-      }
+      throw new Error('Add to Cart button not found. Please check the page structure.');
     }
     
     try {
@@ -112,15 +74,7 @@ export class ProductPage {
       await this.page.waitForLoadState('networkidle', { timeout: 12000 });
       console.log('✓ Navigated to cart page');
     } else {
-      console.log('Specific cart element not found, trying fallback navigation...');
-      const fallbackCartElement = this.page.locator('//div[@id="cart_checkout1"]');
-      if (await fallbackCartElement.isVisible()) {
-        await fallbackCartElement.click();
-        await this.page.waitForLoadState('networkidle', { timeout: 12000 });
-        console.log('✓ Navigated to cart page using fallback method');
-      } else {
-        throw new Error('Could not navigate to cart page');
-      }
+      throw new Error('Could not navigate to cart page');
     }
   }
 
@@ -154,35 +108,9 @@ export class ProductPage {
     
     await this.page.waitForLoadState('networkidle', { timeout: 12000 });
     
-    // Try multiple selectors for T-shirt products
-    const productSelectors = [
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[3]',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[1]',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[1]',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[3]',
-      '//div[contains(@class,"product")]',
-      '//div[contains(@class,"item")]'
-    ];
-
-    let productElement = null;
-    let usedSelector = '';
-
-    for (const selector of productSelectors) {
-      try {
-        const element = this.page.locator(selector);
-        if (await element.isVisible()) {
-          productElement = element;
-          usedSelector = selector;
-          console.log(`✓ Found T-shirt product element using selector: ${selector}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Selector ${selector} not found, trying next...`);
-        continue;
-      }
-    }
+    const productElement = this.page.locator('//*[@id="maincontainer"]/div/div/div/div/div[3]/div[3]');
     
-    if (productElement) {
+    if (await productElement.isVisible()) {
       console.log('✓ Found T-shirt product element');
       
       await productElement.click();
@@ -198,25 +126,7 @@ export class ProductPage {
       console.log('✓ T-shirt added to cart');
       
     } else {
-      // Try to find any product that might be a T-shirt
-      const fallbackProduct = this.page.locator('//div[contains(@class,"product") or contains(@class,"item")]').first();
-      
-      if (await fallbackProduct.isVisible()) {
-        console.log('✓ Found fallback product element');
-        await fallbackProduct.click();
-        console.log('✓ Clicked on fallback product');
-        
-        await this.page.waitForLoadState('networkidle', { timeout: 12000 });
-        await this.page.waitForTimeout(2000);
-        
-        console.log('✓ Product page loaded');
-        
-        console.log('Adding product to cart...');
-        await this.addTshirtToCart();
-        console.log('✓ Product added to cart');
-      } else {
-        throw new Error('No T-shirt product elements found with any selector');
-      }
+      throw new Error('T-shirt product element not found. Please check the page structure.');
     }
     
     console.log('✓ Completed T-shirt selection and cart addition');
@@ -225,53 +135,15 @@ export class ProductPage {
   private async addTshirtToCart() {
     console.log('Adding T-shirt to cart...');
   
-    // Try multiple selectors for the Add to Cart button
-    const selectors = [
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[3]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[1]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[1]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[3]/div[2]/div[3]/a',
-      '//a[contains(text(),"Add to Cart")]',
-      '//a[contains(@class,"cart")]',
-      '//button[contains(text(),"Add to Cart")]',
-      '//input[@value="Add to Cart"]'
-    ];
-
-    let addToCartButton = null;
-    let usedSelector = '';
-
-    for (const selector of selectors) {
-      try {
-        const button = this.page.locator(selector);
-        if (await button.isVisible()) {
-          addToCartButton = button;
-          usedSelector = selector;
-          console.log(`✓ Found Add to Cart button using selector: ${selector}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Selector ${selector} not found, trying next...`);
-        continue;
-      }
-    }
-
-    if (addToCartButton) {
+    const addToCartButton = this.page.locator('//*[@id="product"]/fieldset/div[6]/ul/li/a');
+    
+    if (await addToCartButton.isVisible()) {
       await addToCartButton.scrollIntoViewIfNeeded();
       await this.page.waitForTimeout(1000);
       await addToCartButton.click();
-      console.log(`✓ Clicked Add to Cart button using selector: ${usedSelector}`);
+      console.log('✓ Clicked Add to Cart button');
     } else {
-      // Try to find any button or link that might be the Add to Cart button
-      const fallbackButton = this.page.locator('//a[contains(text(),"Cart") or contains(text(),"Add") or contains(@class,"cart") or contains(@class,"add")]').first();
-      
-      if (await fallbackButton.isVisible()) {
-        await fallbackButton.scrollIntoViewIfNeeded();
-        await this.page.waitForTimeout(1000);
-        await fallbackButton.click();
-        console.log('✓ Clicked Add to Cart button using fallback selector');
-      } else {
-        throw new Error('Could not find Add to Cart button for T-shirt');
-      }
+      throw new Error('Could not find Add to Cart button for T-shirt');
     }
     
     try {
@@ -318,35 +190,9 @@ export class ProductPage {
     await this.sortByHighToLow();
     console.log('✓ Shoes sorted by high to low price');
     
-    // Try multiple selectors for shoe products
-    const productSelectors = [
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[1]',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[1]',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[3]',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[3]',
-      '//div[contains(@class,"product")]',
-      '//div[contains(@class,"item")]'
-    ];
-
-    let productElement = null;
-    let usedSelector = '';
-
-    for (const selector of productSelectors) {
-      try {
-        const element = this.page.locator(selector);
-        if (await element.isVisible()) {
-          productElement = element;
-          usedSelector = selector;
-          console.log(`✓ Found highest value shoe product using selector: ${selector}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Selector ${selector} not found, trying next...`);
-        continue;
-      }
-    }
+    const productElement = this.page.locator('//*[@id="maincontainer"]/div/div/div/div/div[2]/div[1]');
     
-    if (productElement) {
+    if (await productElement.isVisible()) {
       console.log('✓ Found highest value shoe product');
       
       await productElement.click();
@@ -361,25 +207,7 @@ export class ProductPage {
       
       console.log('✓ Highest value shoe added to cart with quantity 2');
     } else {
-      // Try to find any product that might be a shoe
-      const fallbackProduct = this.page.locator('//div[contains(@class,"product") or contains(@class,"item")]').first();
-      
-      if (await fallbackProduct.isVisible()) {
-        console.log('✓ Found fallback shoe product');
-        await fallbackProduct.click();
-        console.log('✓ Clicked on fallback shoe product');
-        
-        await this.page.waitForLoadState('networkidle', { timeout: 12000 });
-        await this.page.waitForTimeout(2000);
-        
-        await this.setShoeQuantity(2);
-        
-        await this.addShoeToCart();
-        
-        console.log('✓ Fallback shoe product added to cart with quantity 2');
-      } else {
-        throw new Error('No shoe product elements found with any selector');
-      }
+      throw new Error('Shoe product element not found. Please check the page structure.');
     }
     
     console.log('✓ Completed adding highest value shoe to cart');
@@ -392,15 +220,12 @@ export class ProductPage {
     
     if (await sortDropdown.isVisible()) {
       try {
-        // Click on dropdown to open it
         await sortDropdown.click();
         console.log('✓ Opened sort dropdown');
         
-        // Wait a moment for dropdown to fully open
         await this.page.waitForTimeout(500);
         
-        // Directly select the "High to Low" option using exact XPath
-        await sortDropdown.selectOption({ index: 4 }); // option[5] is index 4 (0-based)
+        await sortDropdown.selectOption({ index: 4 }); 
         console.log('✓ Sorted products by: Price High to Low');
         
         console.log('Waiting for page to reload with new sorting...');
@@ -434,42 +259,13 @@ export class ProductPage {
   private async addShoeToCart() {
     console.log('Adding shoe to cart...');
     
-    // Try multiple selectors for the Add to Cart button
-    const selectors = [
-      '//*[@id="product"]/fieldset/div[5]/ul/li',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[3]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[1]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[3]/div[1]/div[2]/div[3]/a',
-      '//*[@id="maincontainer"]/div/div/div/div/div[2]/div[3]/div[2]/div[3]/a',
-      '//a[contains(text(),"Add to Cart")]',
-      '//a[contains(@class,"cart")]',
-      '//button[contains(text(),"Add to Cart")]',
-      '//input[@value="Add to Cart"]'
-    ];
-
-    let addToCartButton = null;
-    let usedSelector = '';
-
-    for (const selector of selectors) {
-      try {
-        const button = this.page.locator(selector);
-        if (await button.isVisible()) {
-          addToCartButton = button;
-          usedSelector = selector;
-          console.log(`✓ Found Add to Cart button for shoe using selector: ${selector}`);
-          break;
-        }
-      } catch (error) {
-        console.log(`Selector ${selector} not found, trying next...`);
-        continue;
-      }
-    }
+    const addToCartButton = this.page.locator('//*[@id="product"]/fieldset/div[5]/ul/li/a');
     
-    if (addToCartButton) {
+    if (await addToCartButton.isVisible()) {
       await addToCartButton.scrollIntoViewIfNeeded();
       await this.page.waitForTimeout(1000);
       await addToCartButton.click();
-      console.log(`✓ Clicked Add to Cart button for shoe using selector: ${usedSelector}`);
+      console.log('✓ Clicked Add to Cart button for shoe');
       
       try {
         await this.page.locator('//div[contains(@class,"alert") and contains(text(),"success")]').waitFor({ state: 'visible', timeout: 8000 });
@@ -480,27 +276,7 @@ export class ProductPage {
       
       await this.page.waitForTimeout(2000);
     } else {
-      // Try to find any button or link that might be the Add to Cart button
-      const fallbackButton = this.page.locator('//a[contains(text(),"Cart") or contains(text(),"Add") or contains(@class,"cart") or contains(@class,"add")]').first();
-      
-      if (await fallbackButton.isVisible()) {
-        await fallbackButton.scrollIntoViewIfNeeded();
-        await this.page.waitForTimeout(1000);
-        await fallbackButton.click();
-        console.log('✓ Clicked Add to Cart button for shoe using fallback selector');
-        
-        try {
-          await this.page.locator('//div[contains(@class,"alert") and contains(text(),"success")]').waitFor({ state: 'visible', timeout: 8000 });
-          console.log('✓ Shoe added to cart successfully');
-        } catch (error) {
-          console.log('✓ Shoe likely added to cart (no success message found)');
-        }
-               
-        
-        await this.page.waitForTimeout(2000);
-      } else {
-        throw new Error('Add to Cart button not found for shoe with any selector');
-      }
+      throw new Error('Add to Cart button not found for shoe');
     }
   }
 }
